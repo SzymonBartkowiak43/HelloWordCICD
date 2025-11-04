@@ -58,7 +58,7 @@ pipeline {
             steps {
                 // Upewnij się, że dodałeś kubeconfig z ID: 'doks-kubeconfig'
                 // ORAZ zainstalowałeś narzędzia (helm, kubectl) na serwerze Jenkinsa!
-                withKubeconfig(credentialsId: 'doks-kubeconfig') {
+                withKubeConfig(credentialsId: 'doks-kubeconfig') {
 
                     sh """
                         helm upgrade --install ${releaseName} ${chartPath} \
