@@ -8,10 +8,6 @@ def chartPath = "helm-chart/"
 pipeline {
     agent any
 
-    options {
-        cleanWs()
-    }
-
     stages {
 
         // ETAP 1 (Bez zmian)
