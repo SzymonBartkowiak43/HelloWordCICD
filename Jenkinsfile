@@ -8,15 +8,9 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            agent {
-                docker {
-                    image 'maven:3.9-eclipse-temurin-17'
-                    args '-v /root/.m2:/root/.m2'
-                }
-            }
+        stage('Build Docker Image') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh 'docker build -t hello-world-app .'
             }
         }
     }
