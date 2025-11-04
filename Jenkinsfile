@@ -1,6 +1,8 @@
 pipeline {
-    agent {
-        docker { image 'maven:3.9-eclipse-temurin-17' }
+    agent any  // Zmienione z docker na any
+
+    tools {
+        maven 'Maven 3.9'  // Nazwa musi odpowiadać konfiguracji w Jenkins Global Tool Configuration
     }
 
     stages {
@@ -12,7 +14,6 @@ pipeline {
 
         stage('Test') {
             steps {
-
                 sh 'mvn test'
             }
         }
