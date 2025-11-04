@@ -1,0 +1,5 @@
+image:
+  repository: szymon/hellowordcicd  # ZMIEŃ NA NAZWĘ Z TWOJEGO REJESTRU
+  tag: latest
+
+port: 8090
