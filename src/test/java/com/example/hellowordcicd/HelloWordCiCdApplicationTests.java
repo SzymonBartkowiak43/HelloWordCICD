@@ -10,7 +10,7 @@ class HelloWordCiCdApplicationTests {
 
     @Test
     void contextLoads() {
-        assertTrue(true);
+        assertTrue(false);
     }
 
 }
