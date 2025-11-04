@@ -1,5 +1,5 @@
 image:
-  repository: szymon/hellowordcicd  # ZMIEŃ NA NAZWĘ Z TWOJEGO REJESTRU
+  repository: registry.digitalocean.com/hellooo/hellowordcicd
   tag: latest
 
 port: 8090
