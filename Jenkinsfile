@@ -1,16 +1,23 @@
 pipeline {
+    // Uruchom na głównym agencie (naszym 'moj-jenkins')
     agent any
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
+    // Opcja czyszczenia workspace'u - zostawmy ją, jest bezpieczna.
+    options {
+        cleanWs()
+    }
 
-        stage('Build Docker Image') {
+    stages {
+        // Etap budowania, testowania i pakowania
+        stage('Build, Test & Package') {
+            // Ten etap uruchomi się w osobnym kontenerze
+            agent {
+                docker { image 'maven:3.9-eclipse-temurin-17' }
+            }
             steps {
-                sh 'docker build -t hello-world-app .'
+                // Uruchomienie budowania Mavena
+                // 'clean package' automatycznie odpala też testy
+                sh 'mvn clean package'
             }
         }
     }
