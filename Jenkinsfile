@@ -6,10 +6,6 @@ def dockerImageName = "szymon/${appName}"
 pipeline {
     agent any
 
-    options {
-        cleanWs()
-    }
-
     stages {
 
         stage('Build, Test & Package') {
