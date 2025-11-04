@@ -1,23 +1,15 @@
 pipeline {
-    agent {
-        docker { image 'maven:3.9-eclipse-temurin-17' }
-    }
+    agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/SzymonBartkowiak43/HelloWordCICD.git'
-            }
-        }
 
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
+        stage('Build, Test & Package') {
 
-        stage('Package') {
+            agent {
+                docker { image 'maven:3.9-eclipse-temurin-17' }
+            }
             steps {
+
                 sh 'mvn clean package'
             }
         }
