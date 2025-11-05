@@ -1,0 +1,12 @@
+
+target/*
+
+!target/HelloWordCiCd-0.0.1-SNAPSHOT.jar
+
+.git
+.idea
+.vscode
+src/
+pom.xml
+helm-chart/
+.gitignore
