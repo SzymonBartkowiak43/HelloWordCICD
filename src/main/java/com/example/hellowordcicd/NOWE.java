@@ -9,6 +9,6 @@ public class NOWE {
 
     @GetMapping("/nowe")
     public String nowe() {
-        return "NOWE";
+        return "NOWE bardzo nowe ";
     }
 }
