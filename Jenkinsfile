@@ -1,4 +1,6 @@
-def registryHost = "registry.digitalocean.com" [cite: 1]
+// Źródło: Jenkinsfile (plik 2), ale oczyszczony z cytatów
+
+def registryHost = "registry.digitalocean.com"
 def registryNamespace = "hellooo"
 def appName = "hellowordcicd"
 def dockerImageName = "${registryHost}/${registryNamespace}/${appName}"
@@ -16,28 +18,29 @@ pipeline {
                 docker { image 'maven:3.9-eclipse-temurin-21' }
             }
             steps {
-                sh 'mvn clean package' [cite: 2]
+                sh 'mvn clean package'
 
-                // --- DODAJ TĘ LINIJKĘ ---
                 // Schowaj plik .jar do "magazynu" Jenkinsa
                 stash(name: 'jar', includes: 'target/HelloWordCiCd-0.0.1-SNAPSHOT.jar')
             }
         }
 
+        // ETAP 2: Wyciąga plik .jar i buduje obraz
         stage('Build Docker Image') {
             agent any
             steps {
                 script {
+                    // Wyciągnij plik .jar z magazynu do obecnego folderu
                     unstash 'jar'
 
-                    def imageWithTag = "${dockerImageName}:${env.BUILD_NUMBER}" [cite: 3]
-                    sh "docker build -t ${imageWithTag} ." [cite: 3]
-                    sh "docker tag ${imageWithTag} ${dockerImageName}:latest" [cite: 4]
+                    def imageWithTag = "${dockerImageName}:${env.BUILD_NUMBER}"
+                    sh "docker build -t ${imageWithTag} ."
+                    sh "docker tag ${imageWithTag} ${dockerImageName}:latest"
                 }
             }
         }
 
-        // ETAP 3: WYSYŁANIE OBRAZU (ZMIENIONY)
+        // ETAP 3: WYSYŁANIE OBRAZU
         stage('Push Image to DigitalOcean Registry') {
             agent any
             steps {
@@ -57,12 +60,11 @@ pipeline {
             }
         }
 
-        // ETAP 4: WDROŻENIE NA K8S (Plugin Kubeconfig jest potrzebny!)
+        // ETAP 4: WDROŻENIE NA K8S
         stage('Deploy to Kubernetes') {
             agent any
             steps {
                 // Upewnij się, że dodałeś kubeconfig z ID: 'doks-kubeconfig'
-                // ORAZ zainstalowałeś narzędzia (helm, kubectl) na serwerze Jenkinsa!
                 withKubeConfig(credentialsId: 'doks-kubeconfig') {
 
                     sh """
@@ -70,8 +72,6 @@ pipeline {
                              --set image.tag=${env.BUILD_NUMBER} \
                              --wait
                     """
-                    // Nie musimy już ustawiać image.repository, bo jest
-                    // na stałe wpisane w values.yaml
                 }
             }
         }
