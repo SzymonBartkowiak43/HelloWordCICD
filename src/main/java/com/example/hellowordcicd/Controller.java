@@ -9,6 +9,6 @@ public class Controller {
 
     @GetMapping("/hello")
     public String hello() {
-        return "Autoamtyczne testowanie build o godzienie:::: " + System.currentTimeMillis();
+        return "Testowanie build o godzienie:::: " + System.currentTimeMillis();
     }
 }
