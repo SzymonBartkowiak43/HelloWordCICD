@@ -65,4 +65,27 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent any
             steps {
-                withKubeConfig(credenti
+                withKubeConfig(credentialsId: 'doks-kubeconfig') {
+
+                    echo "========================================="
+                    echo "WDRAŻANIE NA KUBERNETES"
+                    echo "Aplikacja (Release): ${releaseName}"
+                    echo "Nowy Tag Obrazu: ${env.BUILD_NUMBER}"
+                    echo "========================================="
+
+                    sh """
+                        helm upgrade --install ${releaseName} ${chartPath} \
+                             --set image.tag=${env.BUILD_NUMBER} \
+                             --wait
+
+                        echo "Czekam na deployment..."
+                        kubectl rollout status deployment ${releaseName}-deployment --timeout=120s
+
+                        echo "Aktywne pody:"
+                        kubectl get pods -l app=${releaseName} -o wide
+                    """
+                }
+            }
+        }
+    }
+}
