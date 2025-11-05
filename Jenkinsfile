@@ -29,18 +29,31 @@ pipeline {
             }
         }
 
-        stage('Push to Registry') {
-            agent any
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'digitalocean-registry-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh """
-                        echo \$PASS | docker login ${registryHost} -u \$USER --password-stdin
-                        docker push ${dockerImageName}:latest
-                        docker logout ${registryHost}
-                    """
-                }
-            }
-        }
+  stage('Push to Registry') {
+      agent any
+      steps {
+          script {
+              def secrets = [
+                  [
+                      path: 'secret/digitalocean',
+                      engineVersion: 2,
+                      secretValues: [
+                          [envVar: 'DO_USER', vaultKey: 'username'],
+                          [envVar: 'DO_PASS', vaultKey: 'password']
+                      ]
+                  ]
+              ]
+
+              withVault([vaultSecrets: secrets]) {
+                  sh """
+                      echo \$DO_PASS | docker login ${registryHost} -u \$DO_USER --password-stdin
+                      docker push ${dockerImageName}:latest
+                      docker logout ${registryHost}
+                  """
+              }
+          }
+      }
+  }
 
         stage('Deploy to Kubernetes') {
             agent any
