@@ -73,11 +73,7 @@ pipeline {
                     echo "Nowy Tag Obrazu: ${env.BUILD_NUMBER}"
                     echo "========================================="
 
-                    sh """
-                        helm upgrade --install ${releaseName} ${chartPath} \
-                             --set image.tag=${env.BUILD_NUMBER} \
-                             --wait
-                    """
+                    sh """helm upgrade --install hello-prod helm-chart/ --set image.tag=${BUILD_NUMBER} --wait"
                 }
             }
         }

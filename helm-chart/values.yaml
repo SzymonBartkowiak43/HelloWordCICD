@@ -1,5 +1,5 @@
 image:
   repository: registry.digitalocean.com/hellooo/hellowordcicd
-  tag: latest
+  tag: "1"
 
 port: 8090
