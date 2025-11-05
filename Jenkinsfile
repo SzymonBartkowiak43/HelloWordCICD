@@ -29,31 +29,37 @@ pipeline {
             }
         }
 
-  stage('Push to Registry') {
-      agent any
-      steps {
-          script {
-              def secrets = [
-                  [
-                      path: 'secret/digitalocean',
-                      engineVersion: 2,
-                      secretValues: [
-                          [envVar: 'DO_USER', vaultKey: 'username'],
-                          [envVar: 'DO_PASS', vaultKey: 'password']
-                      ]
-                  ]
-              ]
+        stage('Push to Registry') {
+            agent any
+            steps {
+                script {
+                    def secrets = [
+                        [
+                            path: 'secret/digitalocean',
+                            engineVersion: 2,
+                            secretValues: [
+                                [envVar: 'DO_USER', vaultKey: 'username'],
+                                [envVar: 'DO_PASS', vaultKey: 'password']
+                            ]
+                        ]
+                    ]
 
-              withVault([vaultSecrets: secrets]) {
-                  sh """
-                      echo \$DO_PASS | docker login ${registryHost} -u \$DO_USER --password-stdin
-                      docker push ${dockerImageName}:latest
-                      docker logout ${registryHost}
-                  """
-              }
-          }
-      }
-  }
+                    def configuration = [
+                        vaultUrl: 'http://vault:8200',
+                        vaultCredentialId: 'vault-approle',
+                        engineVersion: 2
+                    ]
+
+                    withVault([configuration: configuration, vaultSecrets: secrets]) {
+                        sh """
+                            echo \$DO_PASS | docker login ${registryHost} -u \$DO_USER --password-stdin
+                            docker push ${dockerImageName}:latest
+                            docker logout ${registryHost}
+                        """
+                    }
+                }
+            }
+        }
 
         stage('Deploy to Kubernetes') {
             agent any
