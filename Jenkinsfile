@@ -73,7 +73,18 @@ pipeline {
                     echo "Nowy Tag Obrazu: ${env.BUILD_NUMBER}"
                     echo "========================================="
 
-                    sh """helm upgrade --install hello-prod helm-chart/ --set image.tag=${BUILD_NUMBER} --wait"""
+                    sh """
+                        helm upgrade --install ${releaseName} ${chartPath} \
+                             --set image.tag=${env.BUILD_NUMBER} \
+                             --wait
+
+                        # Wyczyść stare ReplicaSets
+                        kubectl delete replicaset -l app=${releaseName} --field-selector=status.replicas=0
+
+                        # Weryfikacja
+                        echo "Aktywne pody:"
+                        kubectl get pods -l app=${releaseName}
+                    """
                 }
             }
         }
