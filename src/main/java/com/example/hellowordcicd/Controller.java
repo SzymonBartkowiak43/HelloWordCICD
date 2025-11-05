@@ -9,6 +9,6 @@ public class Controller {
 
     @GetMapping("/hello")
     public String hello() {
-        return "Testowanie build o godzienie:::: " + System.currentTimeMillis();
+        return "Testowanie papapapa " + System.currentTimeMillis();
     }
 }
