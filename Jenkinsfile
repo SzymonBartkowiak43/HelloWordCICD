@@ -1,4 +1,4 @@
-def registryHost = "registry.digitalocean.com"
+def registryHost = "registry.digitalocean.com" [cite: 1]
 def registryNamespace = "hellooo"
 def appName = "hellowordcicd"
 def dockerImageName = "${registryHost}/${registryNamespace}/${appName}"
@@ -10,24 +10,29 @@ pipeline {
 
     stages {
 
-        // ETAP 1 (Bez zmian)
+        // ETAP 1: Buduje I CHOWA plik .jar
         stage('Build, Test & Package') {
             agent {
                 docker { image 'maven:3.9-eclipse-temurin-21' }
             }
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package' [cite: 2]
+
+                // --- DODAJ TĘ LINIJKĘ ---
+                // Schowaj plik .jar do "magazynu" Jenkinsa
+                stash(name: 'jar', includes: 'target/HelloWordCiCd-0.0.1-SNAPSHOT.jar')
             }
         }
 
-        // ETAP 2 (Bez zmian)
         stage('Build Docker Image') {
             agent any
             steps {
                 script {
-                    def imageWithTag = "${dockerImageName}:${env.BUILD_NUMBER}"
-                    sh "docker build -t ${imageWithTag} ."
-                    sh "docker tag ${imageWithTag} ${dockerImageName}:latest"
+                    unstash 'jar'
+
+                    def imageWithTag = "${dockerImageName}:${env.BUILD_NUMBER}" [cite: 3]
+                    sh "docker build -t ${imageWithTag} ." [cite: 3]
+                    sh "docker tag ${imageWithTag} ${dockerImageName}:latest" [cite: 4]
                 }
             }
         }
