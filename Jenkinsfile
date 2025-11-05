@@ -65,28 +65,4 @@ pipeline {
         stage('Deploy to Kubernetes') {
             agent any
             steps {
-                withKubeConfig(credentialsId: 'doks-kubeconfig') {
-
-                    echo "========================================="
-                    echo "WDRAŻANIE NA KUBERNETES"
-                    echo "Aplikacja (Release): ${releaseName}"
-                    echo "Nowy Tag Obrazu: ${env.BUILD_NUMBER}"
-                    echo "========================================="
-
-                    sh """
-                        helm upgrade --install ${releaseName} ${chartPath} \
-                             --set image.tag=${env.BUILD_NUMBER} \
-                             --wait
-
-                        # Wyczyść stare ReplicaSets
-                        kubectl delete replicaset -l app=${releaseName} --field-selector=status.replicas=0
-
-                        # Weryfikacja
-                        echo "Aktywne pody:"
-                        kubectl get pods -l app=${releaseName}
-                    """
-                }
-            }
-        }
-    }
-}
+                withKubeConfig(credenti
