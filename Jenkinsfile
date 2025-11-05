@@ -49,17 +49,19 @@ pipeline {
         }
 
         // ETAP 3: WYSYŁANIE OBRAZU
-        stage('Push Image to DigitalOcean Registry') {
-            agent any
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'digitalocean-registry-creds', usernameVariable: 'DO_TOKEN_USER', passwordVariable: 'DO_TOKEN_PASS')]) {
-                    sh "docker login ${registryHost} -u ${DO_TOKEN_USER} -p ${DO_TOKEN_PASS}"
-                    sh "docker push ${dockerImageName}:${env.BUILD_NUMBER}"
-                    sh "docker push ${dockerImageName}:latest"
-                    sh "docker logout ${registryHost}"
-                }
-            }
-        }
+ stage('Push Image to DigitalOcean Registry') {
+     agent any
+     steps {
+         withCredentials([usernamePassword(credentialsId: 'digitalocean-registry-creds', usernameVariable: 'DO_TOKEN_USER', passwordVariable: 'DO_TOKEN_PASS')]) {
+             sh "docker login ${registryHost} -u ${DO_TOKEN_USER} -p ${DO_TOKEN_PASS}"
+
+             // Tylko latest (oszczędza miejsce!)
+             sh "docker push ${dockerImageName}:latest"
+
+             sh "docker logout ${registryHost}"
+         }
+     }
+ }
 
         // ETAP 4: WDROŻENIE NA K8S
         stage('Deploy to Kubernetes') {
