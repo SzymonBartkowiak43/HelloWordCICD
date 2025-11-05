@@ -20,3 +20,16 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: {{ .Values.port }}
+          readinessProbe:
+            httpGet:
+              path: /hello
+              port: {{ .Values.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /hello
+              port: {{ .Values.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
