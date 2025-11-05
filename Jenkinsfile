@@ -1,4 +1,6 @@
-[cite_start]def registryHost = "registry.digitalocean.com" [cite: 1]
+// == CZYSTY JENKINSFILE ==
+
+def registryHost = "registry.digitalocean.com"
 def registryNamespace = "hellooo"
 def appName = "hellowordcicd"
 def dockerImageName = "${registryHost}/${registryNamespace}/${appName}"
@@ -10,63 +12,61 @@ pipeline {
 
     stages {
 
-        // ETAP 1 (Bez zmian)
+        // ETAP 1: Buduje I CHOWA plik .jar
         stage('Build, Test & Package') {
             agent {
                 docker { image 'maven:3.9-eclipse-temurin-21' }
             }
             steps {
-                [cite_start]sh 'mvn clean package' [cite: 2]
+                sh 'mvn clean package'
                 stash(name: 'jar', includes: 'target/HelloWordCiCd-0.0.1-SNAPSHOT.jar')
             }
         }
 
-        // ETAP 2 (Dodane logowanie)
+        // ETAP 2: Wyciąga plik .jar i buduje obraz
         stage('Build Docker Image') {
             agent any
             steps {
                 script {
+                    // Wyciągnij plik .jar z magazynu do obecnego folderu
                     unstash 'jar'
 
-                    [cite_start]def imageWithTag = "${dockerImageName}:${env.BUILD_NUMBER}" [cite: 3]
+                    def imageWithTag = "${dockerImageName}:${env.BUILD_NUMBER}"
 
-                    // --- DODANE LOGOWANIE ---
                     echo "========================================="
                     echo "BUDOWANIE OBRAZU: ${imageWithTag}"
                     echo "========================================="
 
-                    [cite_start]sh "docker build -t ${imageWithTag} ." [cite: 3]
+                    sh "docker build -t ${imageWithTag} ."
 
                     echo "--- DATA UTWORZENIA OBRAZU ---"
                     sh "docker inspect ${imageWithTag} | grep Created"
                     echo "========================================="
-                    // --- KONIEC LOGOWANIA ---
 
-                    [cite_start]sh "docker tag ${imageWithTag} ${dockerImageName}:latest" [cite: 4]
+                    sh "docker tag ${imageWithTag} ${dockerImageName}:latest"
                 }
             }
         }
 
-        // ETAP 3 (Bez zmian)
+        // ETAP 3: WYSYŁANIE OBRAZU
         stage('Push Image to DigitalOcean Registry') {
-            [cite_start]agent any [cite: 6]
+            agent any
             steps {
                 withCredentials([usernamePassword(credentialsId: 'digitalocean-registry-creds', usernameVariable: 'DO_TOKEN_USER', passwordVariable: 'DO_TOKEN_PASS')]) {
-                    [cite_start]sh "docker login ${registryHost} -u ${DO_TOKEN_USER} -p ${DO_TOKEN_PASS}" [cite: 7]
+                    sh "docker login ${registryHost} -u ${DO_TOKEN_USER} -p ${DO_TOKEN_PASS}"
                     sh "docker push ${dockerImageName}:${env.BUILD_NUMBER}"
                     sh "docker push ${dockerImageName}:latest"
-                    [cite_start]sh "docker logout ${registryHost}" [cite: 8]
+                    sh "docker logout ${registryHost}"
                 }
             }
         }
 
-        // ETAP 4 (Dodane logowanie)
+        // ETAP 4: WDROŻENIE NA K8S
         stage('Deploy to Kubernetes') {
-            [cite_start]agent any [cite: 9]
+            agent any
             steps {
-                [cite_start]withKubeConfig(credentialsId: 'doks-kubeconfig') { [cite: 10]
+                withKubeConfig(credentialsId: 'doks-kubeconfig') {
 
-                    // --- DODANE LOGOWANIE ---
                     echo "========================================="
                     echo "WDRAŻANIE NA KUBERNETES"
                     echo "Aplikacja (Release): ${releaseName}"
@@ -77,8 +77,8 @@ pipeline {
                         helm upgrade --install ${releaseName} ${chartPath} \
                              --set image.tag=${env.BUILD_NUMBER} \
                              --wait
-                    [cite_start]""" [cite: 11]
-                [cite_start]} [cite: 12]
+                    """
+                }
             }
         }
     }
