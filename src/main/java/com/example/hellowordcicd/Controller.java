@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class Controller {
 
-
     @GetMapping("/hello")
     public String hello() {
-        return "Test v22222";
+        return "Autoamtyczne testowanie build o godzienie " + System.currentTimeMillis();
     }
 }
